@@ -12,15 +12,31 @@ const refs = {
 
 console.log(fetchCountries('ukr'));
 
-const country = fetchCountries('ukr');
+const country = fetchCountries('her');
 country.then(res => console.log(res));
+country.then(res => res.map(obj => renderList(obj)));
 
-country.then(renderList).catch(er => console.log(er));
+country.then(renderList('ukr')).catch(er => console.log(er));
 
 function renderList(country) {
   const markUp = countryList(country);
   refs.countryList.insertAdjacentHTML('afterbegin', markUp);
 }
+
+// const obf = [
+//   {
+//     name: 'Afganistan',
+//     flags:
+//       'https://upload.wikimedia.org/wikipedia/commons/5/5c/Flag_of_the_Taliban.svg',
+//   },
+//   {
+//     name: 'mango',
+//     flags: 'https://flagcdn.com/w320/ua.png',
+//   },
+// ];
+
+// obf.map(cou => renderList(cou));
+// renderList(obf);
 
 // function marcUpList(array) {
 //   return array.map(
