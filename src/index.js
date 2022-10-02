@@ -4,6 +4,7 @@ import countryInfo from './templates/country-info.hbs';
 import countryList from './templates/country-list.hbs';
 import debounce from 'lodash.debounce';
 import Notiflix from 'notiflix';
+import { set } from 'lodash';
 
 const DEBOUNCE_DELAY = 300;
 const refs = {
@@ -30,6 +31,7 @@ function list(fetchInput) {
     .then(res => {
       if (res.length > 10) {
         marcUpClean();
+        setTimeout(() => refs.countryList.classList.remove('translate'), 200);
         Notiflix.Notify.info(
           'Too many matches found. Please enter a more specific name.'
         );
@@ -42,6 +44,7 @@ function list(fetchInput) {
       refs.countryList.innerHTML = '';
       res.map(obj => {
         renderList(obj);
+        setTimeout(() => refs.countryList.classList.add('translate'), 200);
       });
     })
     .catch(err =>
@@ -54,6 +57,8 @@ function info(fetchInput) {
     .then(res => {
       if (res.length > 1) {
         refs.countryInfo.innerHTML = '';
+        setTimeout(() => refs.countryList.classList.add('translate'), 200);
+        setTimeout(() => refs.countryInfo.classList.remove('opacity'), 200);
         return;
       }
 
@@ -63,6 +68,8 @@ function info(fetchInput) {
       });
     })
     .catch(err => console.log(err));
+  setTimeout(() => refs.countryList.classList.remove('translate'), 200);
+  setTimeout(() => refs.countryInfo.classList.add('opacity'), 200);
 }
 
 function renderList(countries) {
