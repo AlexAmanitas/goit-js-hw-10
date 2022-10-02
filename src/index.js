@@ -1,7 +1,9 @@
 import './css/styles.css';
 import { fetchCountries } from './js/fetchCountries';
-// import countryInfo from '../templates/country-info.hbs';
+import countryInfo from './templates/country-info.hbs';
 import countryList from './templates/country-list.hbs';
+import debounce from 'lodash.debounce';
+import Notiflix from 'notiflix';
 
 const DEBOUNCE_DELAY = 300;
 const refs = {
@@ -10,38 +12,81 @@ const refs = {
   countryInfo: document.querySelector('.country-info'),
 };
 
-console.log(fetchCountries('ukr'));
+refs.input.addEventListener('input', debounce(onInput, DEBOUNCE_DELAY));
 
-const country = fetchCountries('her');
-country.then(res => console.log(res));
-country.then(res => res.map(obj => renderList(obj)));
-
-country.then(renderList('ukr')).catch(er => console.log(er));
-
-function renderList(country) {
-  const markUp = countryList(country);
-  refs.countryList.insertAdjacentHTML('afterbegin', markUp);
+function onInput(evt) {
+  if (evt.target.value === '') {
+    marcUpClean();
+    return;
+  }
+  const country = fetchCountries(evt.target.value);
+  list(country);
+  info(country);
+  return evt.target.value;
 }
 
-// const obf = [
-//   {
-//     name: 'Afganistan',
-//     flags:
-//       'https://upload.wikimedia.org/wikipedia/commons/5/5c/Flag_of_the_Taliban.svg',
-//   },
-//   {
-//     name: 'mango',
-//     flags: 'https://flagcdn.com/w320/ua.png',
-//   },
-// ];
+function list(fetchInput) {
+  fetchInput
+    .then(res => {
+      if (res.length > 10) {
+        marcUpClean();
+        Notiflix.Notify.info(
+          'Too many matches found. Please enter a more specific name.'
+        );
+        return;
+      }
+      if (res.length === 1) {
+        refs.countryList.innerHTML = '';
+        return;
+      }
+      refs.countryList.innerHTML = '';
+      res.map(obj => {
+        renderList(obj);
+      });
+    })
+    .catch(err =>
+      Notiflix.Notify.failure('Oops, there is no country with that name')
+    );
+}
 
-// obf.map(cou => renderList(cou));
-// renderList(obf);
+function info(fetchInput) {
+  fetchInput
+    .then(res => {
+      if (res.length > 1) {
+        refs.countryInfo.innerHTML = '';
+        return;
+      }
 
-// function marcUpList(array) {
-//   return array.map(
-//     array => `<li class="item">
-//   <a href=""><img src="" alt=""><p>${array}</p></a>
-// </li>`
-//   );
-// }
+      res.map(obj => {
+        obj.languages = obj.languages.map(lang => lang.name).join(', ');
+        renderInfo(obj);
+      });
+    })
+    .catch(err => console.log(err));
+}
+
+function renderList(countries) {
+  const markUp = countryList(countries);
+  refs.countryList.insertAdjacentHTML('afterbegin', markUp);
+  const countryLink = document.querySelector('.country-list__link');
+  countryLink.onclick = evt => {
+    evt.preventDefault();
+
+    const selectedCountry = countryLink.lastElementChild.textContent;
+    const country = fetchCountries(selectedCountry);
+    marcUpClean();
+    info(country);
+    console.log(evt, selectedCountry, country);
+  };
+}
+
+function renderInfo(country) {
+  console.log('info', country);
+  const markUp = countryInfo(country);
+  refs.countryInfo.innerHTML = markUp;
+}
+
+function marcUpClean() {
+  refs.countryList.innerHTML = '';
+  refs.countryInfo.innerHTML = '';
+}
