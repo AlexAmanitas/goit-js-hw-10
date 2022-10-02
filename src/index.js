@@ -23,7 +23,6 @@ function onInput(evt) {
   const country = fetchCountries(trimInput);
   list(country);
   info(country);
-  return evt.target.value;
 }
 
 function list(fetchInput) {
