@@ -15,11 +15,12 @@ const refs = {
 refs.input.addEventListener('input', debounce(onInput, DEBOUNCE_DELAY));
 
 function onInput(evt) {
-  if (evt.target.value === '') {
+  const trimInput = evt.target.value.trim();
+  if (trimInput === '') {
     marcUpClean();
     return;
   }
-  const country = fetchCountries(evt.target.value);
+  const country = fetchCountries(trimInput);
   list(country);
   info(country);
   return evt.target.value;
