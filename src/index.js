@@ -102,6 +102,7 @@ function linkClick() {
     marcUpClean();
     country
       .then(res => {
+        res[0].languages = res[0].languages.map(lang => lang.name).join(', ');
         renderInfo(res[0]);
       })
       .catch(err => console.log(err));
