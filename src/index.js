@@ -4,7 +4,8 @@ import countryInfo from './templates/country-info.hbs';
 import countryList from './templates/country-list.hbs';
 import debounce from 'lodash.debounce';
 import Notiflix from 'notiflix';
-import { set } from 'lodash';
+import { fetchWeather } from './js/fetchWeather';
+import { fetchGeoLocation } from './js/fetchWeather';
 
 const DEBOUNCE_DELAY = 300;
 const refs = {
@@ -63,6 +64,7 @@ function info(fetchInput) {
       }
 
       res.map(obj => {
+        console.log(obj);
         obj.languages = obj.languages.map(lang => lang.name).join(', ');
         renderInfo(obj);
       });
@@ -75,21 +77,13 @@ function info(fetchInput) {
 function renderList(countries) {
   const markUp = countryList(countries);
   refs.countryList.insertAdjacentHTML('afterbegin', markUp);
-  const countryLink = document.querySelector('.country-list__link');
-  countryLink.onclick = evt => {
-    evt.preventDefault();
-
-    const selectedCountry = countryLink.lastElementChild.textContent;
-    const country = fetchCountries(selectedCountry);
-    marcUpClean();
-    info(country);
-    console.log(evt, selectedCountry, country);
-  };
+  linkClick();
 }
 
 function renderInfo(country) {
   console.log('info', country);
   const markUp = countryInfo(country);
+  console.log(markUp);
   refs.countryInfo.innerHTML = markUp;
 }
 
@@ -97,3 +91,27 @@ function marcUpClean() {
   refs.countryList.innerHTML = '';
   refs.countryInfo.innerHTML = '';
 }
+
+function linkClick() {
+  const countryLink = document.querySelector('.country-list__link');
+  countryLink.onclick = evt => {
+    evt.preventDefault();
+
+    const selectedCountry = countryLink.lastElementChild.textContent;
+    const country = fetchCountries(selectedCountry);
+    marcUpClean();
+    country
+      .then(res => {
+        renderInfo(res[0]);
+      })
+      .catch(err => console.log(err));
+    setTimeout(() => refs.countryList.classList.remove('translate'), 200);
+    setTimeout(() => refs.countryInfo.classList.add('opacity'), 200);
+    console.log(evt, selectedCountry, country);
+  };
+}
+
+// fetchWeather('london').then(res => console.log(res));
+
+// fetchCountries('georgia').then(r => console.log(r));
+// fetchCountries('sudan').then(r => console.log(r));
