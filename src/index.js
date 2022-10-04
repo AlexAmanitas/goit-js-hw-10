@@ -19,7 +19,7 @@ refs.input.addEventListener('input', debounce(onInput, DEBOUNCE_DELAY));
 
 function onInput(evt) {
   const trimInput = evt.target.value.trim();
-  if (trimInput === '') {
+  if (!trimInput) {
     marcUpClean();
     return;
   }
@@ -124,7 +124,7 @@ function weatherInfo(city) {
       icon: `https://s3-us-west-2.amazonaws.com/s.cdpn.io/162656/${data.weather[0].icon}.svg`,
       windDeg: data.wind.deg,
       windSpeed: data.wind.speed,
-      windArrow: '/icons8-up-50.9354f586.png',
+      windArrow: './images/icons8-up-50.png',
     };
 
     weatherRender(weatherObj);
