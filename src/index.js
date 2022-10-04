@@ -6,6 +6,7 @@ import weather from './templates/weather.hbs';
 import debounce from 'lodash.debounce';
 import Notiflix from 'notiflix';
 import { fetchWeather } from './js/fetchWeather';
+import arrow from './images/icons8-up-50.png';
 
 const DEBOUNCE_DELAY = 300;
 const refs = {
@@ -124,7 +125,7 @@ function weatherInfo(city) {
       icon: `https://s3-us-west-2.amazonaws.com/s.cdpn.io/162656/${data.weather[0].icon}.svg`,
       windDeg: data.wind.deg,
       windSpeed: data.wind.speed,
-      windArrow: './images/icons8-up-50.png',
+      windArrow: arrow,
     };
 
     weatherRender(weatherObj);
