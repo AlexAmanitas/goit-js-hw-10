@@ -2,16 +2,18 @@ import './css/styles.css';
 import { fetchCountries } from './js/fetchCountries';
 import countryInfo from './templates/country-info.hbs';
 import countryList from './templates/country-list.hbs';
+import weather from './templates/weather.hbs';
 import debounce from 'lodash.debounce';
 import Notiflix from 'notiflix';
 import { fetchWeather } from './js/fetchWeather';
-import { fetchGeoLocation } from './js/fetchWeather';
+// import { fetchGeoLocation } from './js/fetchWeather';
 
 const DEBOUNCE_DELAY = 300;
 const refs = {
   input: document.querySelector('#search-box'),
   countryList: document.querySelector('.country-list'),
   countryInfo: document.querySelector('.country-info'),
+  weatherBox: document.querySelector('.weather-box'),
 };
 
 refs.input.addEventListener('input', debounce(onInput, DEBOUNCE_DELAY));
@@ -64,7 +66,6 @@ function info(fetchInput) {
       }
 
       res.map(obj => {
-        console.log(obj);
         obj.languages = obj.languages.map(lang => lang.name).join(', ');
         renderInfo(obj);
       });
@@ -75,21 +76,22 @@ function info(fetchInput) {
 }
 
 function renderList(countries) {
+  weatherCleanMarkUp();
   const markUp = countryList(countries);
   refs.countryList.insertAdjacentHTML('afterbegin', markUp);
   linkClick();
 }
 
 function renderInfo(country) {
-  console.log('info', country);
   const markUp = countryInfo(country);
-  console.log(markUp);
   refs.countryInfo.innerHTML = markUp;
+  weatherInfo(country.capital);
 }
 
 function marcUpClean() {
   refs.countryList.innerHTML = '';
   refs.countryInfo.innerHTML = '';
+  refs.weatherBox.innerHTML = '';
 }
 
 function linkClick() {
@@ -108,11 +110,33 @@ function linkClick() {
       .catch(err => console.log(err));
     setTimeout(() => refs.countryList.classList.remove('translate'), 200);
     setTimeout(() => refs.countryInfo.classList.add('opacity'), 200);
-    console.log(evt, selectedCountry, country);
   };
 }
 
-// fetchWeather('london').then(res => console.log(res));
+function weatherInfo(city) {
+  fetchWeather(city).then(data => {
+    console.log(data);
+    const weatherObj = {
+      name: city,
+      temp: data.main.temp,
+      humidity: data.main.humidity,
+      pressure: data.main.pressure,
+      description: data.weather[0].description,
+      icon: `https://s3-us-west-2.amazonaws.com/s.cdpn.io/162656/${data.weather[0].icon}.svg`,
+      windDeg: data.wind.deg,
+      windSpeed: data.wind.speed,
+      windArrow: '/icons8-up-50.9354f586.png',
+    };
 
-// fetchCountries('georgia').then(r => console.log(r));
-// fetchCountries('sudan').then(r => console.log(r));
+    weatherRender(weatherObj);
+  });
+}
+
+function weatherRender(object) {
+  const markUp = weather(object);
+  refs.weatherBox.innerHTML = markUp;
+}
+
+function weatherCleanMarkUp() {
+  refs.weatherBox.innerHTML = '';
+}
