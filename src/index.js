@@ -16,9 +16,12 @@ const refs = {
   weatherBox: document.querySelector('.weather-box'),
 };
 
+let mapCountry = '';
+
 refs.input.addEventListener('input', debounce(onInput, DEBOUNCE_DELAY));
 
 function onInput(evt) {
+  console.log(evt);
   const trimInput = evt.target.value.trim();
   if (!trimInput) {
     marcUpClean();
@@ -68,6 +71,8 @@ function info(fetchInput) {
       res.map(obj => {
         obj.languages = obj.languages.map(lang => lang.name).join(', ');
         renderInfo(obj);
+        country = obj.name;
+        console.log(country);
       });
     })
     .catch(err => console.log(err));
@@ -86,6 +91,8 @@ function renderInfo(country) {
   const markUp = countryInfo(country);
   refs.countryInfo.innerHTML = markUp;
   weatherInfo(country.capital);
+  mapCountry = country.name;
+  console.log(mapCountry);
 }
 
 function marcUpClean() {
@@ -114,27 +121,37 @@ function linkClick() {
 }
 
 function weatherInfo(city) {
-  fetchWeather(city).then(data => {
-    console.log(data);
-    const weatherObj = {
-      name: city,
-      temp: data.main.temp,
-      humidity: data.main.humidity,
-      pressure: data.main.pressure,
-      description: data.weather[0].description,
-      icon: `https://s3-us-west-2.amazonaws.com/s.cdpn.io/162656/${data.weather[0].icon}.svg`,
-      windDeg: data.wind.deg,
-      windSpeed: data.wind.speed,
-      windArrow: arrow,
-    };
+  fetchWeather(city)
+    .then(data => {
+      console.log(data);
+      const weatherObj = {
+        name: city,
+        temp: data.main.temp,
+        humidity: data.main.humidity,
+        pressure: data.main.pressure,
+        description: data.weather[0].description,
+        icon: `https://s3-us-west-2.amazonaws.com/s.cdpn.io/162656/${data.weather[0].icon}.svg`,
+        windDeg: data.wind.deg,
+        windSpeed: data.wind.speed,
+        windArrow: arrow,
+      };
 
-    weatherRender(weatherObj);
-  });
+      weatherRender(weatherObj);
+    })
+    .catch(err => {
+      console.log('Weather not found');
+    });
 }
 
 function weatherRender(object) {
   const markUp = weather(object);
   refs.weatherBox.innerHTML = markUp;
+  const mapButton = document.querySelector('.map-button');
+  mapButton.addEventListener('click', onClickMap);
+}
+
+function onClickMap() {
+  window.open(`https://www.google.com.ua/maps/place/${mapCountry}`);
 }
 
 function weatherCleanMarkUp() {
