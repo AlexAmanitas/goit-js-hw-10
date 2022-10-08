@@ -139,6 +139,7 @@ function weatherInfo(city) {
       weatherRender(weatherObj);
     })
     .catch(err => {
+      Notiflix.Notify.failure('Oops, weather not found');
       console.log('Weather not found');
     });
 }
